@@ -30,24 +30,35 @@
 			<div class="fxt-header">
 				<a href="login-28.html" class="fxt-logo"><img src="img/logo.png" alt="Logo"></a>
 				<ul class="fxt-switcher-wrap">
-					<li><a href="login.html" class="switcher-text">Login</a></li>
-					<li><a href="register.html" class="switcher-text inline-text">Register</a></li>
-					<li><a href="forgot-password.html" class="switcher-text active">Forgot Password</a></li>
+					<li><a href="/login" class="switcher-text">Login</a></li>
+					<li><a href="/register" class="switcher-text active">Register</a></li>
+					<li><a href="/forgotpassword" class="switcher-text">Forgot Password</a></li>
 				</ul>
 			</div>
 			<div class="fxt-form">
 				<div class="fxt-transformY-50 fxt-transition-delay-1">
-					<p>For recover your password</p>
+					<p>Create an account</p>
 				</div>
 				<form method="POST">
 					<div class="form-group">
 						<div class="fxt-transformY-50 fxt-transition-delay-2">
-							<input type="email" class="form-control" name="email" placeholder="Email Address" required="required">
+							<input type="text" id="name" class="form-control" name="name" placeholder="Name" required="required">
 						</div>
 					</div>
 					<div class="form-group">
 						<div class="fxt-transformY-50 fxt-transition-delay-3">
-							<button type="submit" class="fxt-btn-fill">Send Me Email</button>
+							<input type="email" class="form-control" name="email" placeholder="Email Address" required="required">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="fxt-transformY-50 fxt-transition-delay-4">
+							<input id="password" type="password" class="form-control" name="password" placeholder="********" required="required">
+							<i toggle="#password" class="fa fa-fw fa-eye toggle-password field-icon"></i>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="fxt-transformY-50 fxt-transition-delay-5">
+							<button type="submit" class="fxt-btn-fill">Register</button>
 						</div>
 					</div>
 				</form>

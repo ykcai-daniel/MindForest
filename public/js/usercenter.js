@@ -10,4 +10,5 @@ window.onload = function() {
         const num=document.getElementById('demo')
         num.style.color='green'
     }
+
 };

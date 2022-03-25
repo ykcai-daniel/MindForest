@@ -1,37 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html class="no-js" lang="">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<title>Login and Register Form Html Templates</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Favicon -->
+	<link rel="shortcut icon" type="image/x-icon" href="img/favicon.png">
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<!-- Fontawesome CSS -->
+	<link rel="stylesheet" href="css/fontawesome-all.min.css">
+	<!-- Flaticon CSS -->
+	<link rel="stylesheet" href="font/flaticon.css">
+	<!-- Google Web Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet">
+	<!-- Custom CSS -->
+	<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="container">
-        <h1>Login</h1>
-    </div>
-    <div class="container">
-        <form action="/login" method="post">
-            <div class="form-group">
-                <label for="exampleInputEmail1">Email address</label>
-                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-            </div>
-            <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-            </div>
-            <div class="form-group form-check">
-                <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                <label class="form-check-label" for="exampleCheck1">Check me out</label>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+	<section class="fxt-template-animation fxt-template-layout28" data-bg-image="img/figure/background.jpeg">
+		<!-- Animation Start Here -->
+		<div id="particles-js"></div>
+		<!-- Animation End Here -->
+		<div class="fxt-content">
+			<div class="fxt-header">
+				<a href="login-28.html" class="fxt-logo"><img src="img/logo.png" alt="Logo"></a>
+				<ul class="fxt-switcher-wrap">
+					<li><a href="/login" class="switcher-text active">Login</a></li>
+					<li><a href="/register" class="switcher-text inline-text">Register</a></li>
+					<li><a href="/forgotpassword" class="switcher-text">Forgot Password</a></li>
+				</ul>
+			</div>
+			<div class="fxt-form">
+				<div class="fxt-transformY-50 fxt-transition-delay-1">
+					<p>Login into your account</p>
+				</div>
+				<form method="POST">
+					<div class="form-group">
+						<div class="fxt-transformY-50 fxt-transition-delay-2">
+							<input type="email" id="email" class="form-control" name="email" placeholder="Email" required="required">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="fxt-transformY-50 fxt-transition-delay-3">
+							<input id="password" type="password" class="form-control" name="password" placeholder="********" required="required">
+							<i toggle="#password" class="fa fa-fw fa-eye toggle-password field-icon"></i>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="fxt-transformY-50 fxt-transition-delay-4">
+							<div class="fxt-checkbox-area">
+								<div class="checkbox">
+									<input id="checkbox1" type="checkbox">
+									<label for="checkbox1">Keep me logged in</label>
+								</div>
+								<button type="submit" class="fxt-btn-fill">Log in</button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+	</section>
+	<!-- jquery-->
+	<script src="js/jquery-3.5.0.min.js"></script>
+	<!-- Popper js -->
+	<script src="js/popper.min.js"></script>
+	<!-- Bootstrap js -->
+	<script src="js/bootstrap.min.js"></script>
+	<!-- Imagesloaded js -->
+	<script src="js/imagesloaded.pkgd.min.js"></script>
+	<!-- Particles js -->
+	<script src="js/particles.js"></script>
+	<script src="js/particles-3.js"></script>
+	<!-- Validator js -->
+	<script src="js/validator.min.js"></script>
+	<!-- Custom Js -->
+	<script src="js/main.js"></script>
+
 </body>
+
 </html>
