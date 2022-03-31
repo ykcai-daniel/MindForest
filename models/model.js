@@ -1,12 +1,18 @@
-const { Sequelize, Model, DataTypes } = require('sequelize');
-
 const Sequelize = require("sequelize");
-const sequelize = new Sequelize();
+const sequelize = new Sequelize('mindforest', 'mf', 'e3proj', {
+    host: 'localhost',
+    dialect: 'mysql'
+})
 
 const User=sequelize.define("User",{
+    id:{
+        type:Sequelize.INTEGER,
+        autoIncrement:true,
+        primaryKey: true
+    },
     email:{
         type:Sequelize.STRING,
-        primaryKey:True
+        unique:true
     },
     password:{
         type:Sequelize.STRING
@@ -37,10 +43,10 @@ const Room=sequelize.define("Room",{
     }
 })
 
+//many rooms to one user; foreign key in room
 Room.belongsTo(User)
 
-await sequelize.sync()
-
+sequelize.sync().then(r => console.log("finished!")).catch(e=>console.log(e))
 
 module.exports={
     UserModel:User,

@@ -1,32 +1,50 @@
 const express=require("express")
 const bodyParser=require('body-parser')
-const Sequelize = require("sequelize");
-const mongoose = require('mongoose');
-const io=require('socket.io')
 const mailer=require('nodemailer')
+const passport=require('passport-local')
 const sequelize = require("sequelize");
 const User=require('./models/model.js').UserModel
 const Room=require('./models/model.js').RoomModel
 const PORTNUMBER=8080
-
-function isAuthenticated(){
-    if(true){
-
-    }
-    else{
-        res.redirect('login')
-    }
-}
+const session=require('express-session')
 
 //create express app
 const app=express()
+
 //parse the body of POST request to Javascript object
 app.use(bodyParser.json())
+
 //route for serving javascript and css
 app.use(express.static('./public'))
+
+app.use(session({
+
+}))
+
 //template engine ejs
 app.set('view engine','ejs')
 
+//authentication middlewares
+
+app.use(passport.initialize());
+app.use(passport.session());
+const LocalStrategy = require('passport-local').Strategy;
+passport.use(new LocalStrategy(async function verify(email,password,done){
+    try{
+        const userInfo=await User.findOne({
+            where:{
+                [sequelize.Op.eq]:email
+            }
+        })
+        if(!userInfo.username)return done(null,false);
+        if(userInfo.password!=password)return done(null,false);
+        return done(null,userInfo.id)
+    }
+    catch(e){
+        console.log(e)
+        return done(e)
+    }
+}))
 
 //show login page; show main page if logged in
 app.get('/',(req,res)=>{
@@ -39,8 +57,7 @@ app.get('/login',(req,res)=>{
 })
 
 //POST route for receiving credentials
-app.post('/login',async(req,res)=>{
-    const credential=req.body
+app.post('/login',passport.authenticate('local'),(req,res)=>{
     res.redirect('/main')
 })
 
@@ -129,7 +146,12 @@ app.post('/save',(req,res)=>{
 
 
 //start the server and listen on port 8080
-app.listen(PORTNUMBER,()=>{
+const server=app.listen(PORTNUMBER,()=>{
     console.log("Server start on port 8080")
 })
 
+//mount socket.io endpoints on http server
+const io = require('socket.io')(server)
+io.on("connection",()=>{
+
+})

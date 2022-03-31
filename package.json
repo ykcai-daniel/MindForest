@@ -6,7 +6,9 @@
   "scripts": {
     "test": "node app.js ",
     "dbtest": "node ./Models/User.js",
-    "dbstart": "node ./Models/model.js"
+    "dbstart": "node ./Models/model.js",
+    "startproxy": ".\\cloud_sql_proxy.exe -credential_file=phrasal-brand-342915-7d8a7367a00c.json -instances=phrasal-brand-342915:asia-east2:mindforest=tcp:3306",
+    "help": ".\\cloud_sql_proxy.exe -help"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +17,8 @@
     "body-parser": "^1.19.2",
     "ejs": "^3.1.6",
     "express": "^4.17.3",
-    "mongoose": "^6.2.6",
+    "express-session": "^1.17.2",
+    "mysql2": "^2.3.3",
     "nodemailer": "^6.7.3",
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
