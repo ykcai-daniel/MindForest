@@ -37,7 +37,10 @@
 			</div>
 			<div class="fxt-form">
 				<div class="fxt-transformY-50 fxt-transition-delay-1">
-					<p>Create an account</p>
+					<p>Create an account </p>
+					<% if (typeof text !== "undefined") {%>
+						<h4 style="color:red"><%= text %> </h4>
+					<% } %>
 				</div>
 				<form method="POST">
 					<div class="form-group">
