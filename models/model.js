@@ -38,6 +38,10 @@ const Room=sequelize.define("Room",{
     content:{
         type:Sequelize.BLOB
     },
+    createDate:{
+        defaultValue: sequelize.fn('now'),
+        type:Sequelize.DATE
+    },
     participants:{
         type:Sequelize.INTEGER
     }

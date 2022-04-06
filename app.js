@@ -19,8 +19,8 @@ app.use(express.json())
 app.set('views', './views')
 app.set('view engine','ejs')
 
-//route for serving javascript and css
-app.use(express.static('./public'))
+//public file for express apps
+app.use(express.static('./public'));
 
 app.use(session({
     secret : "tempsecret",
@@ -78,7 +78,7 @@ app.get('/login', checkNotAuthenticated, (req, res) => {
 
 //POST route for receiving credentials
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
-    successRedirect: '/temp',
+    successRedirect: '/main',
     failureRedirect: '/login',
     failureFlash: true
 }))
@@ -143,6 +143,8 @@ app.post('/forgotpassword',checkNotAuthenticated,async (req, res) => {
 })
 
 
+
+
 //show information of authenticated user
 app.get('/user',(req,res)=>{
 
@@ -152,8 +154,10 @@ app.get('/user',(req,res)=>{
 
 //show main page react app
 app.get('/main',(req,res)=>{
-
+    res.sendFile('./client/main.html',{ root: __dirname })
 })
+
+
 
 //AJAX request for all rooms
 app.get('/rooms',async (req,res)=>{

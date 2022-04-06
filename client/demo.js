@@ -1,1 +1,0 @@
-//the mind map canvas should ideally be a react app
