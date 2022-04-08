@@ -193,7 +193,7 @@ app.post('/rooms',(req,res)=>{
 
 //get the canvas react app
 app.get('/canvas',(req, res) => {
-    res.render('canvas')
+    res.sendFile('./client/map.html',{ root: __dirname })
 })
 
 //AJAX to load map
@@ -232,6 +232,11 @@ const server=app.listen(PORTNUMBER,()=>{
 
 //mount socket.io endpoints on http server
 const io = require('socket.io')(server)
-io.on("connection",()=>{
+io.on('connection',(socket)=>{
+    console.log("New user connected")
+    io.emit('hi','hi')
+    socket.on('insert',(insertion)=>{
+        io.emit('insert',insertion)
+    })
 
 })
