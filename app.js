@@ -71,6 +71,9 @@ app.get('/',(req,res)=>{
     res.redirect('/login')
 })
 
+
+
+
 //show login page
 app.get('/login', checkNotAuthenticated, (req, res) => {
     res.render('login')
@@ -235,8 +238,15 @@ const io = require('socket.io')(server)
 io.on('connection',(socket)=>{
     console.log("New user connected")
     io.emit('hi','hi')
-    socket.on('insert',(insertion)=>{
-        io.emit('insert',insertion)
+    socket.on('insert',(parentNodeID,index)=>{
+        socket.broadcast.emit('other-insert',parentNodeID,index)
+        console.log(parentNodeID)
+        console.log(index)
     })
 
+    socket.on('edit',(nodeID,topic)=>{
+        socket.broadcast.emit('other-edit',nodeID,topic)
+        console.log(nodeID)
+        console.log(topic)
+    })
 })
