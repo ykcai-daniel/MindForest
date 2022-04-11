@@ -24,6 +24,7 @@ const User=sequelize.define("User",{
     username:{
         type:Sequelize.STRING
     }
+
 })
 
 const Room=sequelize.define("Room",{
@@ -47,6 +48,16 @@ const Room=sequelize.define("Room",{
     }
 })
 
+const EmailCheck=sequelize.define("EmailCheck",{
+    email:{
+        type:Sequelize.STRING,
+        unique:true
+    },
+    code:{
+        type:Sequelize.STRING
+    }
+})
+
 //many rooms to one user; foreign key in room
 Room.belongsTo(User)
 
@@ -54,7 +65,8 @@ sequelize.sync().then(r => console.log("finished!")).catch(e=>console.log(e))
 
 module.exports={
     UserModel:User,
-    RoomModel:Room
+    RoomModel:Room,
+    EmailCheckModel:EmailCheck
 }
 
 

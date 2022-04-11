@@ -1,12 +1,21 @@
 const express=require("express")
-const mailer=require('nodemailer')
 const passport=require('passport')
 const sequelize = require("sequelize");
 const User=require('./models/model.js').UserModel
 const Room=require('./models/model.js').RoomModel
+const EmailCheck = require("./models/model.js").EmailCheckModel
 const PORTNUMBER=8080
 const session=require('express-session')
 const flash = require('express-flash')
+
+//send email and check
+const email_check = require('./functions/email_check.js')
+
+//store some temp information for verification
+var Signinemail;
+var Signinusername;
+var Signinpassword;
+var Forgetemail;
 
 //create express app
 const app=express()
@@ -66,51 +75,83 @@ passport.serializeUser((userInfo, done) => {
 passport.deserializeUser((userInfo, done) => {
     done(null, userInfo)
 })
+
+
+//old url
 //show login page; show main page if logged in
 app.get('/',(req,res)=>{
     res.redirect('/login')
 })
-
 //show login page
 app.get('/login', checkNotAuthenticated, (req, res) => {
     res.render('login')
 })
-
 //POST route for receiving credentials
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
-    successRedirect: '/main',
     failureRedirect: '/login',
-    failureFlash: true
-}))
+    failureFlash: true}),
+    (req,res) => {
+        console.log("login")
+        res.redirect('/main')
+    })
+
 
 //POST route for receiving information of the newly signed up user
 app.get("/register", checkNotAuthenticated,(req,res) => {
     res.render('register')
 })
 app.post("/register", checkNotAuthenticated,async(req,res,next )=>{
-    //TODO: send mail
-    //TODO:handle duplicate email (primary key violation)
-    const user=User.build({
-        email:req.body.email,
-        password:req.body.password,
-        username:req.body.name
-    })
-    try{
-        await user.save()
-        //log the user table
-       /* const templist = await User.findAll()
-        let description = "";
-        for(let i in templist){
-            let property = templist[i].id + " " + templist[i].email + " " + templist[i].password;
-            description += i + " = " + property + "\n";
-        }
-        console.log(description); */
-        res.redirect('/login')
-    }
-    catch (e){
-        //catch primary key error
+    const exist_user_check = await User.findOne({ where: { email: req.body.email } });
+    if (exist_user_check === null) {
+        await email_check(req,res)
+        Signinemail = req.body.email
+        Signinusername = req.body.name
+        Signinpassword = req.body.password
+        res.render('registerverification')
+    } else {
         console.log("email exists");
         res.render('register',{text: 'email exists'});
+    }
+})
+app.post("/register/verification", checkNotAuthenticated,async(req,res,next )=>{
+    try{
+        const new_info = await EmailCheck.findOne({
+            where:{
+                email:Signinemail
+            }
+        })
+        console.log(Signinemail)
+        console.log(req.body.verification)
+
+        if(new_info == null) {
+            console.log("invalid verification code.")
+            return 0;
+        }
+        if(new_info.code!=req.body.verification) {
+            console.log("wrong verification code.")
+            return 0;
+        }
+        if(new_info.code == req.body.verification) {
+            const new_user = User.build({
+                email: Signinemail,
+                password: Signinpassword,
+                username: Signinusername
+            })
+            try{
+                await new_user.save()
+            } catch (e) {
+                console.log(e)
+                res.redirect('/register')
+            }
+
+
+            return 0
+        }
+        return 1
+    }
+    catch(e){
+        console.log(e)
+        console.log("invalid verification code.")
     }
 
 })
@@ -131,7 +172,7 @@ app.post('/forgotpassword',checkNotAuthenticated,async (req, res) => {
             console.log("The email cannot match any account")
             res.redirect('/forgotpassword')
         }else{
-            //do something
+            await email_check(req,res)
             console.log("success")
             res.redirect('/login')
         }
@@ -142,18 +183,146 @@ app.post('/forgotpassword',checkNotAuthenticated,async (req, res) => {
 
 })
 
-
-
-
-//show information of authenticated user
-app.get('/user',(req,res)=>{
-
-    res.render('usercenter')
+/*
+//  new code
+//first part
+app.get('/login', checkNotAuthenticated,(req,res) => {
+    res.sendFile()//go to login file!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 })
 
+app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
+        failureRedirect: '/login',
+        failureFlash: true}),
+    (req,res) => {
+        console.log("login")
+        if(req.session.passport.admin == 0){
+            res.redirect('/main')
+        }
+        else if(req.session.passport.admin == 1){
+            //admin user, go to different place ----------------------------------------------------------
+            res.redirect('/main')
+        }
+    })
 
+app.post('/forget', checkNotAuthenticated, async (req, res) => {
+    try{
+        let validUser = await User.findOne({
+            where:{
+                email:req.body.email
+            }
+        })
+        if(validUser == null){
+            console.log("The email cannot match any account")
+            res.redirect('/login')  // waiting for update
+        }else{
+            await email_check(req,res)
+            Forgetemail = req.body.email
+            console.log("success")
+           // do something !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! try to post to /forget/verify
+        }
+    } catch (e) {
+        console.log(e)
+        res.redirect('/login') // waiting for update
+    }
+})
+app.post('/forget/verify', checkNotAuthenticated, async (req, res) => {
+    try{
+        let new_info = await EmailCheck.findOne({
+            where:{
+                email:Signinemail
+            }
+        })
+        if(new_info == null) {
+            console.log("invalid verification code.")
+            res.redirect('/login') // waiting for update
+            return 0;
+        }
+        else if(new_info.code!=req.body.verification) {
+            console.log("wrong verification code.")
+            res.redirect('/login') // waiting for update
+            return 0;
+        }
+        else if(new_info.code == req.body.verification) {
+            let change_password = await User.findOne({
+                where:{
+                    email: Forgetemail
+                }
+            })
+            try{
+                change_password.password = req.body.password
+                await change_password.save()
+            } catch (e) {
+                console.log(e)
+                res.redirect('/login')
+            }
+            return 0
+        }
+        return 1
+    }
+    catch(e){
+        console.log(e)
+        res.redirect('/login') // waiting for update
+    }
+})
+app.post('/signup', checkNotAuthenticated,async(req,res,next )=>{
+    const exist_user_check = await User.findOne({ where: { email: req.body.email } });
+    if (exist_user_check === null) {
+        await email_check(req,res)
+        Signinemail = req.body.email
+        Signinusername = req.body.username
+        Signinpassword = req.body.password
+        // do something !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! try to post to /forget/verify
+    } else {
+        console.log("email exists");
+        res.redirect('/login') // waiting for update
+    }
+})
+app.post('/signup/verify', checkNotAuthenticated, async (req, res) => {
+    try{
+        const new_info = await EmailCheck.findOne({
+            where:{
+                email:Signinemail
+            }
+        })
+        console.log(Signinemail)
+        console.log(req.body.verification)
+        if(new_info == null) {
+            console.log("invalid verification code.")
+            res.redirect('/login') // waiting for update
+            return 0;
+        }
+        if(new_info.code!=req.body.verification) {
+            console.log("wrong verification code.")
+            res.redirect('/login') // waiting for update
+            return 0;
+        }
+        if(new_info.code == req.body.verification) {
+            const new_user = User.build({
+                email: Signinemail,
+                password: Signinpassword,
+                username: Signinusername
+            })
+            try{
+                await new_user.save()
+            } catch (e) {
+                console.log(e)
+                res.redirect('/login')
+            }
+            return 0
+        }
+        return 1
+    }
+    catch(e){
+        console.log(e)
+        res.redirect('/login')// waiting for update
+    }
+})
+
+*/
+//////////////////////////////////////////////////////////////////////////////
+//second part
 //show main page react app
-app.get('/main',(req,res)=>{
+app.get('/main',checkAuthenticated,(req,res)=>{
     res.sendFile('./client/main.html',{ root: __dirname })
 })
 
@@ -187,23 +356,28 @@ app.get('/myrooms',async (req,res)=>{
 
 //create new room
 app.post('/rooms',(req,res)=>{
+    //get user id from session info
+    //create new room and room-user relation
+    //redirect to  /canvas/:roomID
 
+})
+
+app.post('/join',(req,res)=>{
+    //read room id from post body
+    //redirect to  /canvas/:roomID
+    res.redirect()
 })
 
 
 //get the canvas react app
-app.get('/canvas',(req, res) => {
+app.get('/canvas/:roomID',(req, res) => {
     res.sendFile('./client/map.html',{ root: __dirname })
 })
 
 //AJAX to load map
-app.get('/loadmap',(req, res) => {
+app.get('/loadmap/:roomID',(req, res) => {
+    //query data and output
     res.render('canvas')
-})
-
-//save the mindmap
-app.post('/save',(req,res)=>{
-
 })
 
 app.get('/temp', checkAuthenticated,(req, res) =>{
@@ -219,7 +393,7 @@ function checkAuthenticated(req, res, next) {
 }
 function checkNotAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
-        return res.redirect('/temp')
+        return res.redirect('/main')
     }
     next()
 }
@@ -235,8 +409,27 @@ const io = require('socket.io')(server)
 io.on('connection',(socket)=>{
     console.log("New user connected")
     io.emit('hi','hi')
-    socket.on('insert',(insertion)=>{
-        io.emit('insert',insertion)
+    socket.on('insert',(parentNodeID,index)=>{
+        socket.broadcast.emit('other-insert',parentNodeID,index)
+        console.log(parentNodeID)
+        console.log(index)
     })
+socket.on('delete',(id)=>{
+    socket.broadcast.emit('other-delete',id)
+    console.log(id)
+})
 
+socket.on('edit',(nodeID,topic)=>{
+    socket.broadcast.emit('other-edit',nodeID,topic)
+    console.log(nodeID)
+    console.log(topic)
+})
+socket.on('save',async (data,roomID)=>{
+    try{
+        await Room.update({content:data}, {where:{id:roomID}})
+    }
+    catch{
+
+    }
+})
 })
