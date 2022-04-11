@@ -2411,6 +2411,7 @@
         },
 
         edit_node_begin:function(node){
+            console.log("Begin!")
             if(!node.topic) {
                 logger.warn("don't edit image nodes");
                 return;
@@ -2433,6 +2434,7 @@
         },
 
         edit_node_end:function(){
+            console.log("End is called!")
             if(this.editing_node != null){
                 var node = this.editing_node;
                 this.editing_node = null;
@@ -2711,6 +2713,7 @@
         this.handles = options.handles;
         this._mapping = {};
     };
+
 
     jm.shortcut_provider.prototype = {
         init : function(){
