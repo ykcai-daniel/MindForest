@@ -16,7 +16,7 @@
     </style>
 </head>
 <body>
-<button>Save</button>
+<button onclick="saveMap()">Save</button>
 <div id="jsmind_container"></div>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -2947,8 +2947,17 @@
         }
     })(typeof window !== 'undefined' ? window : global);
 
+    //my code begin
 
-    let index=1;
+    const fetch_addr=window.location.href
+    console.log(fetch_addr)
+    fetch(fetch_addr).
+        then((res)=>{
+            const info=res.json()
+
+    })
+
+
     const getIDFromParentNode=(parentID,index)=>{
         return parentID+'node'+index;
     }
@@ -2983,6 +2992,8 @@
         var selected_node = _jm.get_selected_node();
         if(!!selected_node && !selected_node.isroot){
             _jm.select_node(selected_node.parent);
+            console.log(selected_node)
+            socket.emit('delete',selected_node.id);
             _jm.remove_node(selected_node);
         }
     }
@@ -3031,15 +3042,21 @@
             var newNodeID = getIDFromParentNode(selected_node.id,index);
             jm.add_node(selected_node.id, newNodeID, 'New Block');
             index++;
-            console('insert event received!!!')
+            console.log('insert event received!!!')
         }
     })
-    socket.on('delete',()=>{
-
+    socket.on('other-delete',(id)=>{
+        var nodeToDelete=jm.get_node(id)
+        console.log(id)
+        jm.remove_node(nodeToDelete);
     })
     socket.on('other-edit',(nodeID,newTopic)=>{
         jm.update_node(nodeID, newTopic)
     })
+    const saveMap=()=>{
+        const saveData=jm.get_data('node_array').data
+        socket.emit('Save',saveData,roomID)
+    }
 </script>
 </body>
 </html>

@@ -190,24 +190,29 @@ app.get('/myrooms',async (req,res)=>{
 
 //create new room
 app.post('/rooms',(req,res)=>{
+    //get user id from session info
+    //create new room and room-user relation
+    //redirect to  /canvas/:roomID
 
 })
 
+app.post('/join',(req,res)=>{
+    //read room id from post body
+    //redirect to  /canvas/:roomID
+    res.redirect()
+})
 
 //get the canvas react app
-app.get('/canvas',(req, res) => {
+app.get('/canvas/:roomID',(req, res) => {
     res.sendFile('./client/map.html',{ root: __dirname })
 })
 
 //AJAX to load map
-app.get('/loadmap',(req, res) => {
+app.get('/loadmap/:roomID',(req, res) => {
+    //query data and output
     res.render('canvas')
 })
 
-//save the mindmap
-app.post('/save',(req,res)=>{
-
-})
 
 app.get('/temp', checkAuthenticated,(req, res) =>{
     var userInfo = req.session.passport.user
@@ -244,9 +249,22 @@ io.on('connection',(socket)=>{
         console.log(index)
     })
 
+    socket.on('delete',(id)=>{
+        socket.broadcast.emit('other-delete',id)
+        console.log(id)
+    })
+
     socket.on('edit',(nodeID,topic)=>{
         socket.broadcast.emit('other-edit',nodeID,topic)
         console.log(nodeID)
         console.log(topic)
+    })
+    socket.on('save',async (data,roomID)=>{
+        try{
+            await Room.update({content:data}, {where:{id:roomID}})
+        }
+        catch{
+
+        }
     })
 })
