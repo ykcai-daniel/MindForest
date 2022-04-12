@@ -33,7 +33,7 @@ app.use(express.static('./public'));
 
 app.use(session({
     secret : "tempsecret",
-    resave: false,
+    resave: true,
     saveUninitialized: false
 }))
 
@@ -76,6 +76,9 @@ passport.deserializeUser((userInfo, done) => {
     done(null, userInfo)
 })
 
+//try
+const testRouter = require("./functions/upload_picture.js")
+app.use("/main", testRouter)
 
 //old url
 //show login page; show main page if logged in
@@ -195,10 +198,10 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
         failureFlash: true}),
     (req,res) => {
         console.log("login")
-        if(req.session.passport.admin == 0){
+        if(req.session.passport.user.admin == 0){
             res.redirect('/main')
         }
-        else if(req.session.passport.admin == 1){
+        else if(req.session.passport.user.admin == 1){
             //admin user, go to different place ----------------------------------------------------------
             res.redirect('/main')
         }
@@ -433,3 +436,4 @@ socket.on('save',async (data,roomID)=>{
     }
 })
 })
+

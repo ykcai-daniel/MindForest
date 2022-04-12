@@ -23,6 +23,11 @@ const User=sequelize.define("User",{
     },
     username:{
         type:Sequelize.STRING
+    },
+    avatar:{
+        type:Sequelize.STRING,
+        unique:true,
+        defaultValue:"./useravatar/default.png"
     }
 
 })
