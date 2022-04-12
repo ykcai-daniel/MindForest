@@ -26,7 +26,6 @@ const User=sequelize.define("User",{
     },
     avatar:{
         type:Sequelize.STRING,
-        unique:true,
         defaultValue:"/useravatar/default.jpg"
     }
 
@@ -64,6 +63,7 @@ const EmailCheck=sequelize.define("EmailCheck",{
 })
 
 //many rooms to one user; foreign key in room
+User.hasMany(Room)
 Room.belongsTo(User)
 
 sequelize.sync().then(r => console.log("finished!")).catch(e=>console.log(e))

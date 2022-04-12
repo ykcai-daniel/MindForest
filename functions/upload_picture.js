@@ -22,21 +22,6 @@ var upload = multer({ storage: storage });
 
 
 router.get("/avatar", (req,res)=>{
-    //when session is still valid, update current_id and current_avatar from session
-    /*
-    try{
-        let tid = req.session.passport.id
-        current_id = tid
-        let current = await User.findOne({
-            where:{
-                id: current_id
-            }
-        })
-        current_avatar = current.avatar
-    } catch (e){
-        console.log(e)
-    }
-     */
     let info = req.session.passport.user
     res.render('avatar_test',{info});
 })

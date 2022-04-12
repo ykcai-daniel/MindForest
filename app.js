@@ -16,7 +16,7 @@ const email_check = require('./functions/email_check.js')
 var Signinemail;
 var Signinusername;
 var Signinpassword;
-var Forgetemail;
+
 
 //create express app
 const app=express()
@@ -81,114 +81,35 @@ passport.deserializeUser((userInfo, done) => {
 const testRouter = require("./functions/upload_picture.js")
 app.use("/main", testRouter)
 
-//old url
-//show login page; show main page if logged in
-app.get('/',(req,res)=>{
+//first part
+app.get('/', checkNotAuthenticated,async (req,res) => {
+    /*for(let i = 0; i < 6; i++){
+        let x = "ab"+i
+        let y = "ab"+i+"@aaa.bbb"
+        let current = await User.findOne({
+            where:{
+                email:y
+            }
+        })
+        let rrr = await current.getRooms()
+        for(let j = 0; j < 3; j++ )
+        console.log(rrr[j].id)
+    }
+    for(let i = 1; i < 18; i++){
+        let current = await Room.findOne({
+            where:{
+                id:i
+            }
+        })
+        console.log((await current.getUser()).username)
+    }*/
+    //console.log(x[1].dataValues)
+
     res.redirect('/login')
 })
-//show login page
-app.get('/login', checkNotAuthenticated, (req, res) => {
-    res.render('login')
-})
-//POST route for receiving credentials
-app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
-    failureRedirect: '/login',
-    failureFlash: true}),
-    (req,res) => {
-        console.log("login")
-        res.redirect('/main')
-    })
 
-
-//POST route for receiving information of the newly signed up user
-app.get("/register", checkNotAuthenticated,(req,res) => {
-    res.render('register')
-})
-app.post("/register", checkNotAuthenticated,async(req,res,next )=>{
-    const exist_user_check = await User.findOne({ where: { email: req.body.email } });
-    if (exist_user_check === null) {
-        await email_check(req,res)
-        Signinemail = req.body.email
-        Signinusername = req.body.name
-        Signinpassword = req.body.password
-        res.render('registerverification')
-    } else {
-        console.log("email exists");
-        res.render('register',{text: 'email exists'});
-    }
-})
-app.post("/register/verification", checkNotAuthenticated,async(req,res,next )=>{
-    try{
-        const new_info = await EmailCheck.findOne({
-            where:{
-                email:Signinemail
-            }
-        })
-        console.log(Signinemail)
-        console.log(req.body.verification)
-
-        if(new_info == null) {
-            console.log("invalid verification code.")
-            return 0;
-        }
-        if(new_info.code!=req.body.verification) {
-            console.log("wrong verification code.")
-            return 0;
-        }
-        if(new_info.code == req.body.verification) {
-            const new_user = User.build({
-                email: Signinemail,
-                password: Signinpassword,
-                username: Signinusername
-            })
-            try{
-                await new_user.save()
-            } catch (e) {
-                console.log(e)
-                res.redirect('/register')
-            }
-            return 0
-        }
-        return 1
-    }
-    catch(e){
-        console.log(e)
-        console.log("invalid verification code.")
-    }
-})
-
-
-//show forget password page
-app.get('/forgotpassword',checkNotAuthenticated,((req, res) => {
-    res.render('forgot-password')
-}))
-app.post('/forgotpassword/verification',checkNotAuthenticated,async (req, res) => {
-    try{
-        const validUser = await User.findOne({
-            where:{
-                email:req.body.email
-            }
-        })
-        if(validUser == null){
-            console.log("The email cannot match any account")
-            res.redirect('/forgotpassword')
-        }else{
-            await email_check(req,res)
-            console.log("success")
-            res.redirect('/login')
-        }
-    } catch (e) {
-        console.log(e)
-        res.redirect('/forgotpassword')
-    }
-
-})
-/////////////////上面都是旧代码，到时候全换下面
-/*
-//  new code
-//first part
 app.get('/login', checkNotAuthenticated,(req,res) => {
-    res.sendFile()//go to login file!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    res.sendFile("./client/login.html",{root:__dirname})
 })
 
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
@@ -217,7 +138,6 @@ app.post('/forget', checkNotAuthenticated, async (req, res) => {
             res.redirect('/login')  // waiting for update
         }else{
             await email_check(req,res)
-            Forgetemail = req.body.email
             console.log("success")
            // do something !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! try to post to /forget/verify
         }
@@ -246,7 +166,7 @@ app.post('/forget/verify', checkNotAuthenticated, async (req, res) => {
         else if(new_info.code == req.body.verification) {
             let change_password = await User.findOne({
                 where:{
-                    email: Forgetemail
+                    email: req.body.email
                 }
             })
             try{
@@ -266,13 +186,13 @@ app.post('/forget/verify', checkNotAuthenticated, async (req, res) => {
     }
 })
 app.post('/signup', checkNotAuthenticated,async(req,res,next )=>{
+    console.log("signup")
     const exist_user_check = await User.findOne({ where: { email: req.body.email } });
     if (exist_user_check === null) {
         await email_check(req,res)
         Signinemail = req.body.email
         Signinusername = req.body.username
         Signinpassword = req.body.password
-        // do something !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! try to post to /forget/verify
     } else {
         console.log("email exists");
         res.redirect('/login') // waiting for update
@@ -319,16 +239,128 @@ app.post('/signup/verify', checkNotAuthenticated, async (req, res) => {
     }
 })
 
-*/
+
 //////////////////////////////////////////////////////////////////////////////
 //second part
 //show main page react app
-app.get('/main',checkAuthenticated,(req,res)=>{
+
+
+app.get('/main',checkAuthenticated, (req,res)=>{
+    console.log("tomain")
     res.sendFile('./client/main.html',{ root: __dirname })
 })
 
+app.get('/setting',checkAuthenticated,async (req,res)=>{
+    console.log('fetch setting')
+    let x = await User.findOne({
+        where:{
+            id: req.session.passport.user.id
+        }
+    })
+    console.log(x.dataValues)
+    res.json(x.dataValues)
+})
+
+app.post('/newroom',checkAuthenticated,async (req,res)=>{
+    console.log('fetch newroom')
+    let x = await User.findOne({
+        where:{
+            id: req.session.passport.user.id
+        }
+    })
+    let y =  await Room.create({name:"new room", participants: 1})
+    await y.setUser(x)
+    await x.addRoom(y)
+    console.log(y.dataValues)
+    res.json(y.dataValues)
+})
+
+app.get('/rooms',checkAuthenticated,async (req,res)=>{
+    console.log('fetch rooms')
+    let x = await Room.findAll({
+        where:{
+            participants:{
+                [sequelize.Op.gt]:0
+            }
+        }
+    })
+    let z = []
+    for(let i = 0; i < x.length; i++)
+        z.push(x[i].dataValues)
+    console.log(z)
+    res.json(z)
+})
+
+app.post('/join',checkAuthenticated,async (req,res)=>{
+    console.log('fetch join')
+    let x = await Room.findOne({
+        where:{
+            id: req.body.id
+        }
+    })
+    x.participants++
+    await x.save()
+    console.log(x.dataValues)
+    //do something to join the room
+})
 
 
+app.get('/myrooms',checkAuthenticated,async (req,res)=>{
+    console.log("fetch myrooms")
+    let x = await User.findOne({
+        where:{
+            id: req.session.passport.user.id
+        }
+    })
+    let y = await x.getRooms()
+    let z = []
+    for(let i = 0; i < y.length; i++)
+        z.push(y[i].dataValues)
+    console.log(z)
+    res.json(z)
+})
+
+app.post('/deleteRoom',checkAuthenticated,async (req,res)=>{
+    console.log("fetch deleteRoom")
+    let x = await Room.findOne({
+        where:{
+            id: req.body.id
+        }
+    })
+    let y = await x.getUser()
+    await y.removeRoom(x)
+    await x.destroy()
+    let z = await y.getRooms()
+    console.log(z)
+    res.json(z)
+})
+
+app.post('/changeName',checkAuthenticated,async (req,res)=>{
+    console.log('fetch changeName')
+    let x = await User.findOne({
+        where:{
+            id: req.session.passport.id
+        }
+    })
+    x.username = req.body.name
+    await x.save()
+    console.log(x.dataValues)
+    res.json(x)
+})
+
+app.post('/changePassword',checkAuthenticated,async (req,res)=>{
+    console.log('fetch changePassword')
+    let x = await User.findOne({
+        where:{
+            id: req.session.passport.user.id
+        }
+    })
+    console.log('password from client: '+ req.body.password)
+    x.password = req.body.password
+    await x.save()
+    console.log(x.dataValues)
+    res.json(x)
+})
 //AJAX request for all rooms
 app.get('/rooms',async (req,res)=>{
     //send all rooms in Json
@@ -356,6 +388,7 @@ app.get('/myrooms',async (req,res)=>{
 })
 
 //create new room
+/*
 app.get('/newroom',async (req,res)=>{
     let userInfo = req.session.passport.user
     let name=req.body.name
@@ -369,7 +402,7 @@ app.get('/newroom',async (req,res)=>{
     res.redirect('/canvas')
 
 })
-
+*/
 
 app.post('/canvas',async (req,res)=>{
     let roomID=req.body.roomID
