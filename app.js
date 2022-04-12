@@ -146,8 +146,6 @@ app.post("/register/verification", checkNotAuthenticated,async(req,res,next )=>{
                 console.log(e)
                 res.redirect('/register')
             }
-
-
             return 0
         }
         return 1
@@ -156,7 +154,6 @@ app.post("/register/verification", checkNotAuthenticated,async(req,res,next )=>{
         console.log(e)
         console.log("invalid verification code.")
     }
-
 })
 
 
@@ -164,7 +161,7 @@ app.post("/register/verification", checkNotAuthenticated,async(req,res,next )=>{
 app.get('/forgotpassword',checkNotAuthenticated,((req, res) => {
     res.render('forgot-password')
 }))
-app.post('/forgotpassword',checkNotAuthenticated,async (req, res) => {
+app.post('/forgotpassword/verification',checkNotAuthenticated,async (req, res) => {
     try{
         const validUser = await User.findOne({
             where:{
@@ -185,7 +182,7 @@ app.post('/forgotpassword',checkNotAuthenticated,async (req, res) => {
     }
 
 })
-
+/////////////////上面都是旧代码，到时候全换下面
 /*
 //  new code
 //first part

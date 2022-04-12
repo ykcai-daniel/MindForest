@@ -4,12 +4,13 @@ const express = require("express")
 const multer = require("multer")
 const User=require('../models/model.js').UserModel
 const router = express.Router()
-router.use(express.static('dist'));
+var current_id
+var current_avatar
 
 var path
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, './useravatar');},
+        cb(null, './public/useravatar');},
     filename: function(req, file, cb) {
         let match = /\.[^\.]+$/.exec(file.originalname)
         let fname = Date.now()+match[0]
@@ -21,14 +22,26 @@ var upload = multer({ storage: storage });
 
 
 router.get("/avatar", (req,res)=>{
-    console.log(req.session.passport.user)
-    let s1 = "http://localhost:8080"
-    let avatarurl = s1.concat(req.session.passport.user.avatar)
-    console.log(avatarurl)
-    res.render('avatar_test',{picture: avatarurl});
+    //when session is still valid, update current_id and current_avatar from session
+    /*
+    try{
+        let tid = req.session.passport.id
+        current_id = tid
+        let current = await User.findOne({
+            where:{
+                id: current_id
+            }
+        })
+        current_avatar = current.avatar
+    } catch (e){
+        console.log(e)
+    }
+     */
+    let info = req.session.passport.user
+    res.render('avatar_test',{info});
 })
 
-router.post('/uploadimg', upload.array('imgfile', 1), async function(req, res, next) {
+router.post('/uploadimg', upload.array('imgfile', 1), async function(req, res) {
     var files = req.files
     console.log(files)
     if (!files[0]) {
@@ -42,7 +55,7 @@ router.post('/uploadimg', upload.array('imgfile', 1), async function(req, res, n
         })
         current.avatar = path
         await current.save()
-        req.session.passport.user = path
+        req.session.passport.user.avatar = path
         res.redirect("/main/avatar")
 
     }
