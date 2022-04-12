@@ -2949,15 +2949,14 @@
 
     //my code begin
 
-    const fetch_addr=window.location.href
-    console.log(fetch_addr)
-    fetch(fetch_addr).
-        then((res)=>{
-            const info=res.json()
-
-    })
-
-
+    const load=()=>{
+        const url='/loadmap'
+        fetch(url,{
+            method:'GET',
+            credentials:'include',
+        }).then(response=>{return response})
+    }
+    let index=0;
     const getIDFromParentNode=(parentID,index)=>{
         return parentID+'node'+index;
     }
@@ -2972,6 +2971,7 @@
             {"id":"root", "isroot":true, "topic":"jsMind"}
         ]
     };
+    mind['data']=load()
     const onInsert=function(_jm,e){
         console.log("Insert")
         var selected_node = _jm.get_selected_node();
@@ -3054,8 +3054,17 @@
         jm.update_node(nodeID, newTopic)
     })
     const saveMap=()=>{
+        const url='/save'
         const saveData=jm.get_data('node_array').data
-        socket.emit('Save',saveData,roomID)
+        fetch(url,{
+            method:'POST',
+            credentials:'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body:JSON.stringify(saveData)
+        })
+        console.log(saveData)
     }
 </script>
 </body>

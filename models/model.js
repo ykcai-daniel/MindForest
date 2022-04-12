@@ -42,7 +42,7 @@ const Room=sequelize.define("Room",{
         type:Sequelize.STRING
     },
     content:{
-        type:Sequelize.BLOB
+        type:Sequelize.STRING
     },
     createDate:{
         defaultValue: sequelize.fn('now'),

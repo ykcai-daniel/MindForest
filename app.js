@@ -1,5 +1,6 @@
 const express=require("express")
 const passport=require('passport')
+const cookieParser = require('cookie-parser');
 const sequelize = require("sequelize");
 const User=require('./models/model.js').UserModel
 const Room=require('./models/model.js').RoomModel
@@ -355,30 +356,32 @@ app.get('/myrooms',async (req,res)=>{
 })
 
 //create new room
-app.post('/rooms',(req,res)=>{
-    //get user id from session info
-    //create new room and room-user relation
-    //redirect to  /canvas/:roomID
+app.get('/newroom',async (req,res)=>{
+    let userInfo = req.session.passport.user
+    let name=req.body.name
+    const result=await Room.create({
+        name:name,
+        UserId:userInfo.id,
+        participants:1
+    })
+    res.cookie("roomID",roomID)
+    console.log(result)
+    res.redirect('/canvas')
 
 })
 
-app.post('/join',(req,res)=>{
-    //read room id from post body
-    //redirect to  /canvas/:roomID
-    res.redirect()
+
+app.post('/canvas',async (req,res)=>{
+    let roomID=req.body.roomID
+    res.cookie("roomID",roomID)
+    const roomData=await Room.findOne({
+        where:{id:roomID}
+    })
+    console.log(roomData.content.toString('utf-8'))
+    res.render('canvas',{mapData:roomData.content.toString('utf-8')})
 })
 
 
-//get the canvas react app
-app.get('/canvas/:roomID',(req, res) => {
-    res.sendFile('./client/map.html',{ root: __dirname })
-})
-
-//AJAX to load map
-app.get('/loadmap/:roomID',(req, res) => {
-    //query data and output
-    res.render('canvas')
-})
 
 app.get('/temp', checkAuthenticated,(req, res) =>{
     var userInfo = req.session.passport.user
@@ -398,6 +401,19 @@ function checkNotAuthenticated(req, res, next) {
     next()
 }
 
+app.get('/testpage',(req,res)=>{
+    const myVar={name:"HI"}
+    console.log(JSON.stringify(myVar))
+    res.render('test',{data:JSON.stringify(myVar)})
+})
+
+app.post('/save',cookieParser(),async (req,res)=>{
+    const data=req.body;
+    const roomID=req.cookies['roomID']
+    console.log(data)
+    await Room.update({content:JSON.stringify(data)}, {where:{id:roomID}})
+    res.send("Saved!")
+})
 
 //start the server and listen on port 8080
 const server=app.listen(PORTNUMBER,()=>{
@@ -426,7 +442,10 @@ socket.on('edit',(nodeID,topic)=>{
 })
 socket.on('save',async (data,roomID)=>{
     try{
-        await Room.update({content:data}, {where:{id:roomID}})
+
+
+        console.log(data)
+        console.log(roomID)
     }
     catch{
 
