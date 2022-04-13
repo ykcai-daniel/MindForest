@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Test</title>
+</head>
+<body>
+<button onclick=join()>Join!</button>
+<button onclick=saveSomeData()>Save!</button>
+<a href="/logout">Logout</a>
+<button> </button>
+    <script>
+        const join=()=>{
+            const url='/join'
+            const info={
+                id:27
+            }
+            fetch(url,{
+                method:'POST',
+                credentials:'include',
+                headers: {'Content-Type': 'application/json'},
+                body:JSON.stringify(info)
+            }).then(()=>{
+                window.location.replace("/canvas");
+            })
+        }
+        const saveSomeData=()=>{
+            const url='/save'
+            const info=[{index:1},{index:2},{index:3}]
+            fetch(url,{
+                method:'POST',
+                credentials:'include',
+                headers: {'Content-Type': 'application/json'},
+                body:JSON.stringify(info)
+            }).then(()=>{
+                window.location.reload();
+            })
+        }
+        const ejsVar=<%-data%>
+        console.log(ejsVar)
+    </script>
+</body>
+</html>
