@@ -1,14 +1,11 @@
 # MindForest
 An interactive online mindmap tool
+![image](https://user-images.githubusercontent.com/79785628/163191545-61a69c2b-0ed7-4ba9-b20b-7373b81fe8db.png)
+
 # Project Structure
-  * EJS files (HTML templates) in './views'
-  * Database schema in './models'
-  * Static contents (Javascript and css) in './public'
-  * URLs: 'app.js'
+  * Frontend: React and jsMind (npm library) for mindmap skeleton
+  * Backend: Express.js and Socket.io running on Node.js Server
+  * Database: Mysql running in google cloud
 # Start the app
   * `npm install` to install depencencies
   * Then `npm test` to start the server
-# TODOs
-  * Choose the part you want to work on
-  * Try Bootstrap frontend library
-  * MongoDB
