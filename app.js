@@ -272,6 +272,7 @@ app.post('/newroom',checkAuthenticated,async (req,res)=>{
     await y.setUser(x)
     await x.addRoom(y)
     console.log(y.dataValues)
+    res.cookie("roomID",y.dataValues.id)
     res.json(y.dataValues)
 })
 
@@ -301,6 +302,8 @@ app.post('/join',checkAuthenticated,async (req,res)=>{
     x.participants++
     await x.save()
     console.log(x.dataValues)
+    res.cookie("roomID",req.body.id)
+    res.send("Joining room!")
     //do something to join the room
 })
 
@@ -361,19 +364,19 @@ app.post('/changePassword',checkAuthenticated,async (req,res)=>{
     console.log(x.dataValues)
     res.json(x)
 })
-//AJAX request for all rooms
-app.get('/rooms',async (req,res)=>{
-    //send all rooms in Json
-    //use include to join
-    const rooms=await Room.findAll({
-        where:{
-            participants:{
-                [sequelize.Op.gt]:0
-            }
-        }
-    })
-    res.send(rooms)
-})
+// //AJAX request for all rooms
+// app.get('/rooms',async (req,res)=>{
+//     //send all rooms in Json
+//     //use include to join
+//     const rooms=await Room.findAll({
+//         where:{
+//             participants:{
+//                 [sequelize.Op.gt]:0
+//             }
+//         }
+//     })
+//     res.send(rooms)
+// })
 
 //AJAX request for my room
 app.get('/myrooms',async (req,res)=>{
@@ -389,7 +392,7 @@ app.get('/myrooms',async (req,res)=>{
 
 //create new room
 /*
-app.get('/newroom',async (req,res)=>{
+app.post('/newroom',async (req,res)=>{
     let userInfo = req.session.passport.user
     let name=req.body.name
     const result=await Room.create({
@@ -397,19 +400,22 @@ app.get('/newroom',async (req,res)=>{
         UserId:userInfo.id,
         participants:1
     })
-    res.cookie("roomID",roomID)
-    console.log(result)
+    console.log(result.id)
+    res.cookie("roomID",result.id)
     res.redirect('/canvas')
 
 })
 */
 
-app.post('/canvas',async (req,res)=>{
-    let roomID=req.body.roomID
-    res.cookie("roomID",roomID)
-    const roomData=await Room.findOne({
-        where:{id:roomID}
-    })
+app.get('/canvas',cookieParser(),async (req,res)=>{
+    let roomData={}
+    console.log(req.cookies)
+    const roomID=req.cookies['roomID']
+    try{
+        roomData=await Room.findOne({where:{id:roomID}})
+    }catch(e){
+        console.log(e.message)
+    }
     console.log(roomData.content.toString('utf-8'))
     res.render('canvas',{mapData:roomData.content.toString('utf-8')})
 })
@@ -443,8 +449,14 @@ app.get('/testpage',(req,res)=>{
 app.post('/save',cookieParser(),async (req,res)=>{
     const data=req.body;
     const roomID=req.cookies['roomID']
+    console.log(roomID)
     console.log(data)
-    await Room.update({content:JSON.stringify(data)}, {where:{id:roomID}})
+    try{
+        await Room.update({content:JSON.stringify(data)}, {where:{id:roomID}})
+    }
+    catch(e){
+        console.log(e)
+    }
     res.send("Saved!")
 })
 

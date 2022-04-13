@@ -2949,13 +2949,13 @@
 
     //my code begin
 
-    const load=()=>{
-        const url='/loadmap'
-        fetch(url,{
-            method:'GET',
-            credentials:'include',
-        }).then(response=>{return response})
-    }
+    // const load=()=>{
+    //     const url='/loadmap'
+    //     fetch(url,{
+    //         method:'GET',
+    //         credentials:'include',
+    //     }).then(response=>{return response})
+    // }
     let index=0;
     const getIDFromParentNode=(parentID,index)=>{
         return parentID+'node'+index;
@@ -2967,9 +2967,7 @@
             "version":"0.2",
         },
         "format":"node_array",
-        "data":[
-            {"id":"root", "isroot":true, "topic":"jsMind"}
-        ]
+        "data":[]
     };
     mind['data']=<%-mapData%>
     const onInsert=function(_jm,e){

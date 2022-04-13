@@ -41,7 +41,8 @@ const Room=sequelize.define("Room",{
         type:Sequelize.STRING
     },
     content:{
-        type:Sequelize.STRING
+        type:Sequelize.STRING(4097),
+        defaultValue:"[{\"id\":\"root\", \"isroot\":true, \"topic\":\"jsMind\"}]"
     },
     createDate:{
         defaultValue: sequelize.fn('now'),
