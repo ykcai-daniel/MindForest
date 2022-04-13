@@ -108,7 +108,9 @@ app.get('/', checkNotAuthenticated,async (req,res) => {
 
     res.redirect('/login')
 })
-
+app.post("/trypost",(req,res)=>{
+    res.send(req.body)
+})
 app.get('/login', checkNotAuthenticated,(req,res) => {
     res.sendFile("./client/login.html",{root:__dirname})
 })
@@ -123,7 +125,7 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
         }
         else if(req.session.passport.user.admin == 1){
             //admin user, go to different place ----------------------------------------------------------
-            res.redirect('/adminpage')
+            res.redirect('/admin')
         }
     })
 
@@ -249,10 +251,11 @@ app.post('/signup/verify', checkNotAuthenticated, async (req, res) => {
 
 app.get('/main',checkAuthenticated, (req,res)=>{
     console.log("tomain")
-    if(req.session.passport.user.admin == 0)
-        res.sendFile('./client/main.html',{ root: __dirname })
-    else if(req.session.passport.user.admin == 1)
-        res.redirect('/adminpage')
+    // if(req.session.passport.user.admin == 0)
+    //     res.sendFile('./client/main.html',{ root: __dirname })
+    // else if(req.session.passport.user.admin == 1)
+    //     res.redirect('/admin')
+    res.sendFile('./client/main.html',{ root: __dirname })
 })
 
 app.get('/setting',checkAuthenticated,async (req,res)=>{
@@ -297,20 +300,6 @@ app.get('/rooms',checkAuthenticated,async (req,res)=>{
     res.json(z)
 })
 
-app.post('/join',checkAuthenticated,async (req,res)=>{
-    console.log('fetch join')
-    let x = await Room.findOne({
-        where:{
-            id: req.body.id
-        }
-    })
-    x.participants++
-    await x.save()
-    console.log(x.dataValues)
-    res.cookie("roomID",req.body.id)
-    res.send("Joining room!")
-    //do something to join the room
-})
 
 
 app.get('/myrooms',checkAuthenticated,async (req,res)=>{
@@ -412,6 +401,14 @@ app.post('/newroom',async (req,res)=>{
 })
 */
 
+app.post('/join',checkAuthenticated,async (req,res)=>{
+    console.log('fetch join')
+    console.log(req.body)
+    res.cookie("roomID",req.body.id)
+    res.send("Joining room!")
+    //do something to join the room
+})
+
 app.get('/canvas',cookieParser(),async (req,res)=>{
     let roomData={}
     console.log(req.cookies)
@@ -432,6 +429,10 @@ app.get('/temp', checkAuthenticated,(req, res) =>{
     res.render('temp', {userInfo})
 })
 
+app.get('/admin',(req,res) => {
+    res.sendFile("./client/admin.html",{root:__dirname})
+})
+
 app.get('/adminpage', checkAuthenticated,async (req,res) =>{
     console.log("fetch deleteRoom")
     let x = await User.findAll()
@@ -444,12 +445,11 @@ app.get('/adminpage', checkAuthenticated,async (req,res) =>{
 
 function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
-        if(req.session.passport.user.admin == 0)
             return next()
-        if(req.session.passport.user.admin == 1)
-            res.redirect('/main')
     }
-    res.redirect('/login')
+    else{
+        res.redirect('/login')
+    }
 }
 function checkNotAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
@@ -476,6 +476,11 @@ app.post('/save',cookieParser(),async (req,res)=>{
         console.log(e)
     }
     res.send("Saved!")
+})
+
+app.get("/logout",(req,res)=>{
+    req.session.destroy()
+    res.redirect("/")
 })
 
 //start the server and listen on port 8080
