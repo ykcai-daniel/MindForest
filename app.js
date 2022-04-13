@@ -16,6 +16,7 @@ const email_check = require('./functions/email_check.js')
 var Signinemail;
 var Signinusername;
 var Signinpassword;
+var Forgetemail
 
 
 //create express app
@@ -122,7 +123,7 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
         }
         else if(req.session.passport.user.admin == 1){
             //admin user, go to different place ----------------------------------------------------------
-            res.redirect('/main')
+            res.redirect('/adminpage')
         }
     })
 
@@ -138,6 +139,7 @@ app.post('/forget', checkNotAuthenticated, async (req, res) => {
             res.redirect('/login')  // waiting for update
         }else{
             await email_check(req,res)
+            Forgetemail = req.body.email
             console.log("success")
            // do something !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! try to post to /forget/verify
         }
@@ -150,7 +152,7 @@ app.post('/forget/verify', checkNotAuthenticated, async (req, res) => {
     try{
         let new_info = await EmailCheck.findOne({
             where:{
-                email:Signinemail
+                email:Forgetemail
             }
         })
         if(new_info == null) {
@@ -247,7 +249,10 @@ app.post('/signup/verify', checkNotAuthenticated, async (req, res) => {
 
 app.get('/main',checkAuthenticated, (req,res)=>{
     console.log("tomain")
-    res.sendFile('./client/main.html',{ root: __dirname })
+    if(req.session.passport.user.admin == 0)
+        res.sendFile('./client/main.html',{ root: __dirname })
+    else if(req.session.passport.user.admin == 1)
+        res.redirect('/adminpage')
 })
 
 app.get('/setting',checkAuthenticated,async (req,res)=>{
@@ -342,7 +347,7 @@ app.post('/changeName',checkAuthenticated,async (req,res)=>{
     console.log('fetch changeName')
     let x = await User.findOne({
         where:{
-            id: req.session.passport.id
+            id: req.session.passport.user.id
         }
     })
     x.username = req.body.name
@@ -364,6 +369,7 @@ app.post('/changePassword',checkAuthenticated,async (req,res)=>{
     console.log(x.dataValues)
     res.json(x)
 })
+/*
 // //AJAX request for all rooms
 // app.get('/rooms',async (req,res)=>{
 //     //send all rooms in Json
@@ -390,8 +396,7 @@ app.get('/myrooms',async (req,res)=>{
     res.send(rooms)
 })
 
-//create new room
-/*
+
 app.post('/newroom',async (req,res)=>{
     let userInfo = req.session.passport.user
     let name=req.body.name
@@ -427,9 +432,22 @@ app.get('/temp', checkAuthenticated,(req, res) =>{
     res.render('temp', {userInfo})
 })
 
+app.get('/adminpage', checkAuthenticated,async (req,res) =>{
+    console.log("fetch deleteRoom")
+    let x = await User.findAll()
+    let y = []
+    for(let i = 0; i < x.length; i++)
+        y.push(x[i].dataValues)
+    console.log(y)
+    res.json(y)
+})
+
 function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
-        return next()
+        if(req.session.passport.user.admin == 0)
+            return next()
+        if(req.session.passport.user.admin == 1)
+            res.redirect('/main')
     }
     res.redirect('/login')
 }
