@@ -147,7 +147,7 @@ app.post('/forget', checkNotAuthenticated, async (req, res) => {
         }
     } catch (e) {
         console.log(e)
-        res.redirect('/login') // waiting for update
+        res.send('Received') // waiting for update
     }
 })
 app.post('/forget/verify', checkNotAuthenticated, async (req, res) => {
@@ -199,8 +199,8 @@ app.post('/signup', checkNotAuthenticated,async(req,res,next )=>{
         Signinpassword = req.body.password
     } else {
         console.log("email exists");
-        res.redirect('/login') // waiting for update
     }
+    res.send("Received!")
 })
 app.post('/signup/verify', checkNotAuthenticated, async (req, res) => {
     try{
