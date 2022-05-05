@@ -1,3 +1,4 @@
+// The module that provide the function of change avatar
 "use strict";
 console.log("in the new js file")
 const express = require("express")
@@ -6,11 +7,12 @@ const User=require('../models/model.js').UserModel
 const router = express.Router()
 var current_id
 var current_avatar
-
 var path
+
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, './public/useravatar');},
+    // change the name of uploaded picture
     filename: function(req, file, cb) {
         let match = /\.[^\.]+$/.exec(file.originalname)
         let fname = Date.now()+match[0]
@@ -30,7 +32,7 @@ router.post('/uploadimg', upload.array('imgfile', 1), async function(req, res) {
     var files = req.files
     console.log(files)
     if (!files[0]) {
-        res.send('error');
+        res.send('error, no file uploaded');
         res.redirect("/main/avatar")
     } else {
         let current = await User.findOne({
@@ -38,6 +40,7 @@ router.post('/uploadimg', upload.array('imgfile', 1), async function(req, res) {
                 id: req.session.passport.user.id
             }
         })
+        // save the path of picture to the attribute 'avatar' of the user.
         current.avatar = path
         await current.save()
         req.session.passport.user.avatar = path

@@ -1,3 +1,5 @@
+//the module for checking code by email
+
 const EmailCheck = require("../models/model.js").EmailCheckModel
 const User=require('../models/model.js').UserModel
 
@@ -6,14 +8,17 @@ module.exports = async (req, res)=> {
     const smtpTransport = require('nodemailer-smtp-transport')
     const assert = require('http-assert')
 
+    // the account to send the email
     const transport = nodemailer.createTransport(smtpTransport({
         service: "Gmail",
         auth: {
-            user: "temp3100zzz@gmail.com", //用户名
-            pass: ".test135" // SMTP授权码
+            user: "temp3100zzz@gmail.com",
+            pass: ".test135"
         }
     }));
-    const randomFns = () => { // 生成6位随机数
+
+    // generate the code
+    const randomFns = () => {
         let rcode = ""
         for (let i = 0; i < 6; i++) {
             rcode += parseInt(Math.random() * 10)
@@ -21,6 +26,8 @@ module.exports = async (req, res)=> {
         return rcode
     }
     let ccode = randomFns()
+
+    // save the code in the database
     const check_item = EmailCheck.build({
         email: req.body.email,
         code: ccode
@@ -33,16 +40,16 @@ module.exports = async (req, res)=> {
         return 0
     }
     transport.sendMail({
-            from: "temp3100zzz@gmail.com", // 发件邮箱
-            to: req.body.email, // 收件列表
-            subject: "Mind forest register", // 标题
+            from: "temp3100zzz@gmail.com",
+            to: req.body.email,  // the user email
+            subject: "Mind forest register",
             html: `
             <p>Your mindforest register code <strong style="color: #ff4e2a;">${ccode}</strong></p>` // html content
         },
         function () {
             transport.close();
         })
-    setTimeout(async () => {    //5分钟后失效
+    setTimeout(async () => {    //delete the code 5 minutes later
         await check_item.destroy()
     },5*60*1000)
 }

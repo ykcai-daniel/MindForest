@@ -9,6 +9,10 @@ const PORTNUMBER=8080
 const session=require('express-session')
 const flash = require('express-flash')
 
+
+//NOTE THAT: the html files are generated from other react apps which are built separately. Therefore, there seems
+//           are some compatibility problems that cannot be easily solved.
+
 //send email and check
 const email_check = require('./functions/email_check.js')
 
@@ -43,6 +47,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
+// login function
 const LocalStrategy = require('passport-local').Strategy
 passport.use(new LocalStrategy({
         usernameField: 'email',
@@ -78,33 +83,12 @@ passport.deserializeUser((userInfo, done) => {
     done(null, userInfo)
 })
 
-//try
+//waiting for further use
 const testRouter = require("./functions/upload_picture.js")
 app.use("/main", testRouter)
 
-//first part
+//first part, before login.
 app.get('/', checkNotAuthenticated,async (req,res) => {
-    /*for(let i = 0; i < 6; i++){
-        let x = "ab"+i
-        let y = "ab"+i+"@aaa.bbb"
-        let current = await User.findOne({
-            where:{
-                email:y
-            }
-        })
-        let rrr = await current.getRooms()
-        for(let j = 0; j < 3; j++ )
-        console.log(rrr[j].id)
-    }
-    for(let i = 1; i < 18; i++){
-        let current = await Room.findOne({
-            where:{
-                id:i
-            }
-        })
-        console.log((await current.getUser()).username)
-    }*/
-    //console.log(x[1].dataValues)
 
     res.redirect('/login')
 })
@@ -245,9 +229,7 @@ app.post('/signup/verify', checkNotAuthenticated, async (req, res) => {
 
 
 //////////////////////////////////////////////////////////////////////////////
-//second part
-//show main page react app
-
+//second part, after login.
 
 app.get('/main',checkAuthenticated, (req,res)=>{
     console.log("tomain")
@@ -434,7 +416,6 @@ app.get('/admin',(req,res) => {
 })
 
 app.get('/adminpage', checkAuthenticated,async (req,res) =>{
-    console.log("fetch deleteRoom")
     let x = await User.findAll()
     let y = []
     for(let i = 0; i < x.length; i++)
@@ -443,6 +424,7 @@ app.get('/adminpage', checkAuthenticated,async (req,res) =>{
     res.json(y)
 })
 
+// Two simple functions that helps to check user status and decides the server side behavior.
 function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
             return next()
@@ -458,6 +440,7 @@ function checkNotAuthenticated(req, res, next) {
     next()
 }
 
+//
 app.get('/testpage',(req,res)=>{
     const myVar={name:"HI"}
     console.log(JSON.stringify(myVar))
