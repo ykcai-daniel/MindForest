@@ -515,8 +515,7 @@ socket.on('save',async (data,roomID)=>{
 })
 })
 // unmatched url will return main page.
-app.all('*', checkNotAuthenticated, (req, res) => {
-
+app.all('*',  (req, res) => {
     res.redirect('/login')
 })
 

@@ -8,9 +8,12 @@
     <div >
         <img src="<%=info.avatar%>" >
     </div>
+    <% if (typeof text !== "undefined") {%>
+        <h4 style="color:red"><%= text %> </h4>
+    <% } %>
     <form action="uploadimg" method="POST" enctype="multipart/form-data">
         <input type="file" name="imgfile" multiple>
-        <input type="submit" value="提交">
+        <input type="submit">
     </form>
 </body>
 </html>

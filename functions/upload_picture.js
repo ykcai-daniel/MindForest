@@ -1,12 +1,9 @@
 // The module that provide the function of change avatar
 "use strict";
-console.log("in the new js file")
 const express = require("express")
 const multer = require("multer")
 const User=require('../models/model.js').UserModel
 const router = express.Router()
-var current_id
-var current_avatar
 var path
 
 const storage = multer.diskStorage({
@@ -31,23 +28,30 @@ router.get("/avatar", (req,res)=>{
 router.post('/uploadimg', upload.array('imgfile', 1), async function(req, res) {
     var files = req.files
     console.log(files)
-    if (!files[0]) {
-        res.send('error, no file uploaded');
-        res.redirect("/main/avatar")
-    } else {
-        let current = await User.findOne({
-            where:{
-                id: req.session.passport.user.id
-            }
-        })
-        // save the path of picture to the attribute 'avatar' of the user.
-        current.avatar = path
-        await current.save()
-        req.session.passport.user.avatar = path
-        res.redirect("/main/avatar")
-
+    try{
+        if (!files[0]) {
+            let info = req.session.passport.user
+            res.render("avatar_test",{"text" : "error, no file uploaded", info})
+        } else {
+            let current = await User.findOne({
+                where:{
+                    id: req.session.passport.user.id
+                }
+            })
+            // save the path of picture to the attribute 'avatar' of the user.
+            current.avatar = path
+            await current.save()
+            req.session.passport.user.avatar = path
+            res.redirect("/main/avatar")
+        }
+        console.log(files);
     }
-    console.log(files);
+    catch(e){
+        console.log(e)
+        res.redirect("/main/avatar")
+    }
+
+
 })
 
 module.exports = router
