@@ -44,7 +44,8 @@ module.exports = async (req, res)=> {
             to: req.body.email,  // the user email
             subject: "Mind forest register",
             html: `
-            <p>Your mindforest register code <strong style="color: #ff4e2a;">${ccode}</strong></p>` // html content
+            <p>Your mindforest register code is<strong style="color: #ff4e2a;">${ccode}</strong></p>
+            <p> The code will expire in 5 minutes.</p>` // html content
         },
         function () {
             transport.close();

@@ -104,6 +104,7 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
         failureFlash: true}),
     (req,res) => {
         console.log("login")
+
         if(req.session.passport.user.admin == 0){
             res.redirect('/main')
         }
@@ -114,6 +115,7 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
     })
 
 app.post('/forget', checkNotAuthenticated, async (req, res) => {
+
     try{
         let validUser = await User.findOne({
             where:{
@@ -135,6 +137,7 @@ app.post('/forget', checkNotAuthenticated, async (req, res) => {
     }
 })
 app.post('/forget/verify', checkNotAuthenticated, async (req, res) => {
+
     try{
         let new_info = await EmailCheck.findOne({
             where:{
@@ -154,7 +157,7 @@ app.post('/forget/verify', checkNotAuthenticated, async (req, res) => {
         else if(new_info.code == req.body.verification) {
             let change_password = await User.findOne({
                 where:{
-                    email: req.body.email
+                    email: Forgetemail
                 }
             })
             try{
@@ -174,6 +177,7 @@ app.post('/forget/verify', checkNotAuthenticated, async (req, res) => {
     }
 })
 app.post('/signup', checkNotAuthenticated,async(req,res,next )=>{
+
     console.log("signup")
     const exist_user_check = await User.findOne({ where: { email: req.body.email } });
     if (exist_user_check === null) {
@@ -187,6 +191,7 @@ app.post('/signup', checkNotAuthenticated,async(req,res,next )=>{
     res.send("Received!")
 })
 app.post('/signup/verify', checkNotAuthenticated, async (req, res) => {
+
     try{
         const new_info = await EmailCheck.findOne({
             where:{
@@ -232,6 +237,7 @@ app.post('/signup/verify', checkNotAuthenticated, async (req, res) => {
 //second part, after login.
 
 app.get('/main',checkAuthenticated, (req,res)=>{
+
     console.log("tomain")
     // if(req.session.passport.user.admin == 0)
     //     res.sendFile('./client/main.html',{ root: __dirname })
@@ -241,6 +247,7 @@ app.get('/main',checkAuthenticated, (req,res)=>{
 })
 
 app.get('/setting',checkAuthenticated,async (req,res)=>{
+
     console.log('fetch setting')
     let x = await User.findOne({
         where:{
@@ -252,6 +259,7 @@ app.get('/setting',checkAuthenticated,async (req,res)=>{
 })
 
 app.post('/newroom',checkAuthenticated,async (req,res)=>{
+
     console.log('fetch newroom')
     let x = await User.findOne({
         where:{
@@ -300,6 +308,7 @@ app.get('/myrooms',checkAuthenticated,async (req,res)=>{
 })
 
 app.post('/deleteRoom',checkAuthenticated,async (req,res)=>{
+
     console.log("fetch deleteRoom")
     let x = await Room.findOne({
         where:{
@@ -315,6 +324,7 @@ app.post('/deleteRoom',checkAuthenticated,async (req,res)=>{
 })
 
 app.post('/changeName',checkAuthenticated,async (req,res)=>{
+
     console.log('fetch changeName')
     let x = await User.findOne({
         where:{
@@ -328,6 +338,7 @@ app.post('/changeName',checkAuthenticated,async (req,res)=>{
 })
 
 app.post('/changePassword',checkAuthenticated,async (req,res)=>{
+
     console.log('fetch changePassword')
     let x = await User.findOne({
         where:{
@@ -502,5 +513,10 @@ socket.on('save',async (data,roomID)=>{
 
     }
 })
+})
+// unmatched url will return main page.
+app.all('*', checkNotAuthenticated, (req, res) => {
+
+    res.redirect('/login')
 })
 
